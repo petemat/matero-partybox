@@ -66,7 +66,6 @@ export function RoundScreen({
   };
 
   const onTimerDone = () => {
-    // Beep (simple WebAudio)
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
       const o = ctx.createOscillator();
@@ -96,7 +95,6 @@ export function RoundScreen({
     setRoundOver(false);
     setRunning(false);
 
-    // reshuffle deck if we are at the end
     if (idx >= deck.length - 1) {
       setDeck(shuffle(TERMS));
       setIdx(0);
@@ -104,34 +102,36 @@ export function RoundScreen({
   };
 
   return (
-    <div className="min-h-[100svh] px-4 py-5">
-      <div className="max-w-md mx-auto space-y-4">
+    <div style={{ minHeight: "100svh", padding: 16 }}>
+      <div className="container stack-3" style={{ margin: "0 auto" }}>
         <ScoreBoard teamA={teamA} teamB={teamB} scoreA={scoreA} scoreB={scoreB} active={active} />
 
-        <div className="flex items-center justify-between">
+        <div className="row-between">
           <Pill>
-            Team dran: <span className="text-white/85 font-semibold">{activeName}</span>
+            Team dran: <span style={{ color: "rgba(255,255,255,0.9)", fontWeight: 800 }}>{activeName}</span>
           </Pill>
           <ModeBadge mode={mode} />
         </div>
 
         <Timer seconds={duration} running={running} onDone={onTimerDone} />
 
-        <Card className="p-5">
-          <div className="text-[11px] uppercase tracking-[0.22em] text-white/45">Begriff</div>
-          <div className="text-center py-6">
-            <div className="text-4xl font-extrabold tracking-tight text-white/95 leading-tight">{current}</div>
+        <Card className="card-pad stack-2">
+          <div className="kicker">Begriff</div>
+          <div className="term">
+            <div className="termWord">{current}</div>
             {mode === "MALEN" && (
-              <div className="text-white/45 text-sm mt-3">(MVP) Malen-Modus: später kommt Canvas dazu.</div>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 10 }}>
+                (MVP) Malen-Modus: später kommt Canvas dazu.
+              </div>
             )}
           </div>
 
           {!running ? (
-            <Button className="w-full" variant="primary" onClick={onStartRound}>
+            <Button variant="primary" onClick={onStartRound}>
               Runde starten
             </Button>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="btn-row">
               <Button variant="good" onClick={onCorrect}>
                 Richtig (+1)
               </Button>
@@ -142,14 +142,9 @@ export function RoundScreen({
           )}
         </Card>
 
-        <div className="text-center text-[12px] text-white/35">{running ? "Weiterreichen ist verboten 😉" : "Handy ans nächste Team geben."}</div>
+        <div className="smallNote">{running ? "Weiterreichen ist verboten 😉" : "Handy ans nächste Team geben."}</div>
 
-        <RoundEndModal
-          open={roundOver}
-          title="Zeit vorbei"
-          subtitle={summary}
-          onNextTeam={onNextTeam}
-        />
+        <RoundEndModal open={roundOver} title="Zeit vorbei" subtitle={summary} onNextTeam={onNextTeam} />
       </div>
     </div>
   );

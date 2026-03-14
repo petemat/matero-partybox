@@ -13,69 +13,68 @@ export function StartScreen({
   const durations: Array<30 | 60 | 90> = useMemo(() => [30, 60, 90], []);
 
   return (
-    <div className="min-h-[100svh] px-5 py-7 flex items-center justify-center">
-      <div className="w-full max-w-md space-y-4">
-        <div className="text-center">
-          <div className="text-white/90 text-3xl font-extrabold tracking-tight">PartyBox</div>
-          <div className="text-white/50 text-sm mt-1">Activity / Tabu – 2 Teams, 1 Handy.</div>
+    <div className="screen">
+      <div className="container stack-4">
+        <div style={{ textAlign: "center" }}>
+          <div className="h1">PartyBox</div>
+          <div className="sub">Activity / Tabu – 2 Teams, 1 Handy.</div>
         </div>
 
-        <Card className="p-5 space-y-4">
-          <div className="text-xs text-white/50 uppercase tracking-[0.2em]">Teams</div>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="block">
-              <div className="text-[11px] text-white/40 mb-1">Team A</div>
-              <input
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white/85 outline-none"
-                value={teamA}
-                onChange={(e) => setTeamA(e.target.value)}
-              />
+        <Card className="card-pad stack-3">
+          <div className="kicker">Teams</div>
+          <div className="grid-2">
+            <label>
+              <div className="kicker" style={{ letterSpacing: ".12em", opacity: 0.8 }}>
+                Team A
+              </div>
+              <input className="input" value={teamA} onChange={(e) => setTeamA(e.target.value)} />
             </label>
-            <label className="block">
-              <div className="text-[11px] text-white/40 mb-1">Team B</div>
-              <input
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white/85 outline-none"
-                value={teamB}
-                onChange={(e) => setTeamB(e.target.value)}
-              />
+            <label>
+              <div className="kicker" style={{ letterSpacing: ".12em", opacity: 0.8 }}>
+                Team B
+              </div>
+              <input className="input" value={teamB} onChange={(e) => setTeamB(e.target.value)} />
             </label>
           </div>
 
-          <div className="text-xs text-white/50 uppercase tracking-[0.2em] mt-2">Rundendauer</div>
-          <div className="flex gap-2">
+          <div className="kicker" style={{ marginTop: 6 }}>
+            Rundendauer
+          </div>
+          <div className="row">
             {durations.map((d) => (
               <button
                 key={d}
                 onClick={() => setDuration(d)}
-                className={
-                  "flex-1 rounded-2xl border px-3 py-3 text-sm font-semibold transition " +
-                  (duration === d
-                    ? "border-violet-400/40 bg-violet-500/15 text-violet-100"
-                    : "border-white/10 bg-white/5 text-white/75 hover:bg-white/8")
-                }
+                className={`btn btn--secondary`}
+                style={{ padding: "12px 10px", borderRadius: 16, fontSize: 15, width: "100%", background: "rgba(255,255,255,0.06)" }}
               >
-                {d}s
+                <span style={{ opacity: duration === d ? 1 : 0.9, fontWeight: duration === d ? 800 : 700 }}>
+                  {d}s
+                </span>
               </button>
             ))}
           </div>
 
-          <div className="flex items-center justify-between pt-1">
+          <div className="row-between" style={{ paddingTop: 4 }}>
             <Pill>Modus pro Runde zufällig</Pill>
             <Pill>Begriffe ohne Wiederholung</Pill>
           </div>
 
           <Button
             variant="primary"
-            className="w-full mt-2"
-            onClick={() => onStart({ teamA: teamA.trim() || "Team A", teamB: teamB.trim() || "Team B", duration })}
+            onClick={() =>
+              onStart({
+                teamA: teamA.trim() || "Team A",
+                teamB: teamB.trim() || "Team B",
+                duration,
+              })
+            }
           >
             Spiel starten
           </Button>
         </Card>
 
-        <div className="text-center text-[12px] text-white/35">
-          Tipp: Handy weitergeben. Eine Runde = ein Team. Danach wechselt ihr.
-        </div>
+        <div className="smallNote">Tipp: Handy weitergeben. Eine Runde = ein Team. Danach wechselt ihr.</div>
       </div>
     </div>
   );

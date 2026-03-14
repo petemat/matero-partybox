@@ -14,21 +14,21 @@ export function ScoreBoard({
   active: "A" | "B";
 }) {
   return (
-    <div className="flex items-center justify-between gap-3">
-      <div className={`flex-1 rounded-2xl border px-4 py-3 ${active === "A" ? "border-violet-400/40 bg-violet-500/10" : "border-white/10 bg-white/5"}`}>
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-white/80 font-semibold truncate">{teamA || "Team A"}</div>
-          <Pill className={active === "A" ? "border-violet-400/30 bg-violet-500/15 text-violet-100" : ""}>
-            {scoreA}
-          </Pill>
+    <div className="row">
+      <div className={`card`} style={{ flex: 1, padding: 12, borderColor: active === "A" ? "rgba(167,139,250,0.35)" : "rgba(255,255,255,0.12)", background: active === "A" ? "rgba(124,58,237,0.14)" : "rgba(255,255,255,0.06)" }}>
+        <div className="row-between">
+          <div style={{ fontSize: 14, fontWeight: 800, color: "rgba(255,255,255,0.86)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {teamA || "Team A"}
+          </div>
+          <Pill className={active === "A" ? "pill--active" : ""}>{scoreA}</Pill>
         </div>
       </div>
-      <div className={`flex-1 rounded-2xl border px-4 py-3 ${active === "B" ? "border-violet-400/40 bg-violet-500/10" : "border-white/10 bg-white/5"}`}>
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-white/80 font-semibold truncate">{teamB || "Team B"}</div>
-          <Pill className={active === "B" ? "border-violet-400/30 bg-violet-500/15 text-violet-100" : ""}>
-            {scoreB}
-          </Pill>
+      <div className={`card`} style={{ flex: 1, padding: 12, borderColor: active === "B" ? "rgba(167,139,250,0.35)" : "rgba(255,255,255,0.12)", background: active === "B" ? "rgba(124,58,237,0.14)" : "rgba(255,255,255,0.06)" }}>
+        <div className="row-between">
+          <div style={{ fontSize: 14, fontWeight: 800, color: "rgba(255,255,255,0.86)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {teamB || "Team B"}
+          </div>
+          <Pill className={active === "B" ? "pill--active" : ""}>{scoreB}</Pill>
         </div>
       </div>
     </div>

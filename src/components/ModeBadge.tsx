@@ -11,10 +11,10 @@ export function modeLabel(m: Mode) {
 export function ModeBadge({ mode }: { mode: Mode }) {
   const c =
     mode === "PANTOMIME"
-      ? "border-cyan-400/25 bg-cyan-500/10 text-cyan-100"
+      ? "pill--cyan"
       : mode === "MALEN"
-        ? "border-amber-400/25 bg-amber-500/10 text-amber-100"
-        : "border-emerald-400/25 bg-emerald-500/10 text-emerald-100";
+        ? "pill--amber"
+        : "pill--green";
 
   return <Pill className={c}>{modeLabel(mode)}</Pill>;
 }

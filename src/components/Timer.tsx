@@ -37,17 +37,10 @@ export function Timer({
   const urgent = left <= 5;
 
   return (
-    <div
-      className={
-        "rounded-2xl border px-4 py-3 text-center font-bold tabular-nums " +
-        (urgent
-          ? "border-rose-400/30 bg-rose-500/15 text-rose-100"
-          : "border-white/10 bg-white/5 text-white/80")
-      }
-    >
-      <div className="text-[11px] uppercase tracking-[0.22em] opacity-70">Timer</div>
-      <div className="text-3xl leading-tight">{mmss}</div>
-      {urgent && <div className="text-[11px] opacity-80">Letzte Sekunden!</div>}
+    <div className={`timer ${urgent ? "timer--urgent" : ""}`.trim()}>
+      <div className="timerLabel">Timer</div>
+      <div className="timerValue">{mmss}</div>
+      {urgent && <div className="timerLabel" style={{ letterSpacing: ".12em" }}>Letzte Sekunden!</div>}
     </div>
   );
 }
