@@ -1,0 +1,22 @@
+:root {
+  color-scheme: dark;
+  --bg0: #0a0e27;
+  --bg1: #12172e;
+  --bg2: #1a1339;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: radial-gradient(1200px 800px at 50% 0%, rgba(124,58,237,0.22), transparent 55%),
+    linear-gradient(135deg, var(--bg0), var(--bg1) 45%, var(--bg2));
+}
+
+input, button, textarea {
+  font: inherit;
+}
+
+/* prevent iOS zoom on inputs */
+input { font-size: 16px; }
