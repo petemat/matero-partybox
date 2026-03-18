@@ -43,7 +43,7 @@ export function StartScreen({
           </div>
         </div>
 
-        <Card className="card-pad stack-3">
+        <Card className="cardSolid card-pad stack-3">
           <div className="kicker">{t(lang, "teams")}</div>
           <div className="grid-2">
             <label>

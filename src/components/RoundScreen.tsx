@@ -131,7 +131,7 @@ export function RoundScreen({
 
         <Timer seconds={duration} running={running} onDone={onTimerDone} lang={lang} />
 
-        <Card className="card-pad stack-2">
+        <Card className="cardSolid card-pad stack-2">
           <div className="kicker">{t(lang, "term")}</div>
           <div className="term">
             <div className="termWord">{current}</div>
