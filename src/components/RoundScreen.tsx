@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { TERMS } from "../data/terms";
+import { t, type Lang } from "../i18n";
+import { getTerms } from "../data/terms.index";
 import type { Mode } from "./ModeBadge";
 import { ModeBadge } from "./ModeBadge";
 import { ScoreBoard } from "./ScoreBoard";
@@ -27,23 +28,26 @@ export function RoundScreen({
   teamA,
   teamB,
   duration,
+  lang,
 }: {
   teamA: string;
   teamB: string;
   duration: number;
+  lang: Lang;
 }) {
   const [active, setActive] = useState<"A" | "B">("A");
   const [scoreA, setScoreA] = useState(0);
   const [scoreB, setScoreB] = useState(0);
 
   const [mode, setMode] = useState<Mode>(() => randomMode());
-  const [deck, setDeck] = useState(() => shuffle(TERMS));
+  const terms = useMemo(() => getTerms(lang), [lang]);
+  const [deck, setDeck] = useState(() => shuffle(terms));
   const [idx, setIdx] = useState(0);
 
   const [running, setRunning] = useState(false);
   const [roundOver, setRoundOver] = useState(false);
 
-  const current = deck[idx] ?? "(keine Begriffe mehr)";
+  const current = deck[idx] ?? (lang === "en" ? "(no more words)" : "(keine Begriffe mehr)");
 
   const activeName = active === "A" ? teamA : teamB;
 
@@ -96,7 +100,7 @@ export function RoundScreen({
     setRunning(false);
 
     if (idx >= deck.length - 1) {
-      setDeck(shuffle(TERMS));
+      setDeck(shuffle(terms));
       setIdx(0);
     }
   };
@@ -108,43 +112,43 @@ export function RoundScreen({
 
         <div className="row-between">
           <Pill>
-            Team dran: <span style={{ color: "rgba(255,255,255,0.9)", fontWeight: 800 }}>{activeName}</span>
+            {t(lang, "teamTurn")} <span style={{ color: "rgba(255,255,255,0.9)", fontWeight: 800 }}>{activeName}</span>
           </Pill>
-          <ModeBadge mode={mode} />
+          <ModeBadge mode={mode} lang={lang} />
         </div>
 
-        <Timer seconds={duration} running={running} onDone={onTimerDone} />
+        <Timer seconds={duration} running={running} onDone={onTimerDone} lang={lang} />
 
         <Card className="card-pad stack-2">
-          <div className="kicker">Begriff</div>
+          <div className="kicker">{t(lang, "term")}</div>
           <div className="term">
             <div className="termWord">{current}</div>
             {mode === "MALEN" && (
               <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 10 }}>
-                (MVP) Malen-Modus: später kommt Canvas dazu.
+                {t(lang, "drawMvpNote")}
               </div>
             )}
           </div>
 
           {!running ? (
             <Button variant="primary" onClick={onStartRound}>
-              Runde starten
+              {t(lang, "startRound")}
             </Button>
           ) : (
             <div className="btn-row">
               <Button variant="good" onClick={onCorrect}>
-                Richtig (+1)
+                {t(lang, "correct")}
               </Button>
               <Button variant="secondary" onClick={onSkip}>
-                Skip
+                {t(lang, "skip")}
               </Button>
             </div>
           )}
         </Card>
 
-        <div className="smallNote">{running ? "Weiterreichen ist verboten 😉" : "Handy ans nächste Team geben."}</div>
+        <div className="smallNote">{running ? t(lang, "noPassing") : t(lang, "passPhone")}</div>
 
-        <RoundEndModal open={roundOver} title="Zeit vorbei" subtitle={summary} onNextTeam={onNextTeam} />
+        <RoundEndModal open={roundOver} title={t(lang, "timeUp")} subtitle={summary} onNextTeam={onNextTeam} />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-export const TERMS: string[] = [
+export const TERMS_DE: string[] = [
   "Pinguin",
   "Batman",
   "Pizza",

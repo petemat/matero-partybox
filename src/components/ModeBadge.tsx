@@ -1,14 +1,15 @@
+import { t, type Lang } from "../i18n";
 import { Pill } from "./ui";
 
 export type Mode = "PANTOMIME" | "MALEN" | "ERKLAEREN";
 
-export function modeLabel(m: Mode) {
-  if (m === "PANTOMIME") return "🎭 Pantomime";
-  if (m === "MALEN") return "✏️ Malen";
-  return "🗣️ Erklären";
+export function modeLabel(lang: Lang, m: Mode) {
+  if (m === "PANTOMIME") return t(lang, "pantomime");
+  if (m === "MALEN") return t(lang, "draw");
+  return t(lang, "explain");
 }
 
-export function ModeBadge({ mode }: { mode: Mode }) {
+export function ModeBadge({ mode, lang }: { mode: Mode; lang: Lang }) {
   const c =
     mode === "PANTOMIME"
       ? "pill--cyan"
@@ -16,5 +17,5 @@ export function ModeBadge({ mode }: { mode: Mode }) {
         ? "pill--amber"
         : "pill--green";
 
-  return <Pill className={c}>{modeLabel(mode)}</Pill>;
+  return <Pill className={c}>{modeLabel(lang, mode)}</Pill>;
 }

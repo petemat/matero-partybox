@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
+import { t, type Lang } from "../i18n";
 
 export function Timer({
   seconds,
   running,
   onDone,
+  lang,
 }: {
   seconds: number;
   running: boolean;
   onDone: () => void;
+  lang: Lang;
 }) {
   const [left, setLeft] = useState(seconds);
 
@@ -38,9 +41,13 @@ export function Timer({
 
   return (
     <div className={`timer ${urgent ? "timer--urgent" : ""}`.trim()}>
-      <div className="timerLabel">Timer</div>
+      <div className="timerLabel">{t(lang, "timer")}</div>
       <div className="timerValue">{mmss}</div>
-      {urgent && <div className="timerLabel" style={{ letterSpacing: ".12em" }}>Letzte Sekunden!</div>}
+      {urgent && (
+        <div className="timerLabel" style={{ letterSpacing: ".12em" }}>
+          {t(lang, "lastSeconds")}
+        </div>
+      )}
     </div>
   );
 }
