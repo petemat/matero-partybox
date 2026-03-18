@@ -117,8 +117,9 @@ export function RoundScreen({
   };
 
   return (
-    <div style={{ minHeight: "100svh", padding: 16 }}>
+    <div className="roundScreen">
       <TopBar title="PartyBox" onBack={confirmExit} />
+
       <div className="container stack-3" style={{ margin: "0 auto" }}>
         <ScoreBoard teamA={teamA} teamB={teamB} scoreA={scoreA} scoreB={scoreB} active={active} />
 
@@ -141,27 +142,33 @@ export function RoundScreen({
               </div>
             )}
           </div>
-
-          {!running ? (
-            <Button variant="primary" onClick={onStartRound}>
-              {t(lang, "startRound")}
-            </Button>
-          ) : (
-            <div className="btn-row">
-              <Button variant="good" onClick={onCorrect}>
-                {t(lang, "correct")}
-              </Button>
-              <Button variant="secondary" onClick={onSkip}>
-                {t(lang, "skip")}
-              </Button>
-            </div>
-          )}
         </Card>
 
         <div className="smallNote">{running ? t(lang, "noPassing") : t(lang, "passPhone")}</div>
 
         <RoundEndModal open={roundOver} title={t(lang, "timeUp")} subtitle={summary} onNextTeam={onNextTeam} />
       </div>
+
+      {!roundOver && (
+        <div className="stickyCtaBar" role="navigation" aria-label="Round actions">
+          <div className="container stickyCtaInner">
+            {!running ? (
+              <Button variant="primary" onClick={onStartRound}>
+                {t(lang, "startRound")}
+              </Button>
+            ) : (
+              <div className="btn-row">
+                <Button variant="good" onClick={onCorrect}>
+                  {t(lang, "correct")}
+                </Button>
+                <Button variant="secondary" onClick={onSkip}>
+                  {t(lang, "skip")}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
