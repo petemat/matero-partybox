@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { t, type Lang } from "../i18n";
 import { getTerms } from "../data/terms.index";
 import type { Mode } from "./ModeBadge";
@@ -50,6 +50,10 @@ export function RoundScreen({
   const [running, setRunning] = useState(false);
   const [roundOver, setRoundOver] = useState(false);
 
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const countdownTimersRef = useRef<number[]>([]);
+  const countdownAudioRef = useRef<AudioContext | null>(null);
+
   const current = deck[idx] ?? (lang === "en" ? "(no more words)" : "(keine Begriffe mehr)");
 
   const activeName = active === "A" ? teamA : teamB;
@@ -66,10 +70,89 @@ export function RoundScreen({
     nextCard();
   };
 
+  const clearCountdownTimers = () => {
+    for (const id of countdownTimersRef.current) window.clearTimeout(id);
+    countdownTimersRef.current = [];
+  };
+
+  const closeCountdownAudio = () => {
+    const ctx = countdownAudioRef.current;
+    countdownAudioRef.current = null;
+    try {
+      ctx?.close();
+    } catch {}
+  };
+
+  const playCountdownBeep = (ctx: AudioContext, freq: number) => {
+    try {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.value = freq;
+      g.gain.value = 0.055;
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start();
+      o.stop(ctx.currentTime + 0.08);
+    } catch {}
+  };
+
   const onStartRound = () => {
+    if (running) return;
+    if (countdown !== null) return;
+
     setMode(randomMode());
-    setRunning(true);
     setRoundOver(false);
+    setRunning(false);
+
+    setCountdown(3);
+
+    // Optional subtle tick sounds; can be disabled via localStorage key "partybox:sound" = "off".
+    const soundOn = (() => {
+      try {
+        return window.localStorage.getItem("partybox:sound") !== "off";
+      } catch {
+        return true;
+      }
+    })();
+
+    clearCountdownTimers();
+    closeCountdownAudio();
+
+    let ctx: AudioContext | null = null;
+    if (soundOn) {
+      try {
+        ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        // iOS/Safari: resume must happen in a user gesture.
+        ctx.resume?.();
+        countdownAudioRef.current = ctx;
+      } catch {
+        ctx = null;
+      }
+    }
+
+    if (ctx) playCountdownBeep(ctx, 660);
+
+    countdownTimersRef.current.push(
+      window.setTimeout(() => {
+        setCountdown(2);
+        if (ctx) playCountdownBeep(ctx, 660);
+      }, 1000),
+    );
+    countdownTimersRef.current.push(
+      window.setTimeout(() => {
+        setCountdown(1);
+        if (ctx) playCountdownBeep(ctx, 660);
+      }, 2000),
+    );
+    countdownTimersRef.current.push(
+      window.setTimeout(() => {
+        setCountdown(null);
+        setRunning(true);
+        if (ctx) playCountdownBeep(ctx, 880);
+        window.setTimeout(() => closeCountdownAudio(), 200);
+      }, 3000),
+    );
   };
 
   const onTimerDone = () => {
@@ -109,16 +192,30 @@ export function RoundScreen({
   };
 
   const confirmExit = () => {
-    if (running) {
+    if (running || countdown !== null) {
       const ok = window.confirm(lang === "en" ? "End the game and go back to start?" : "Spiel beenden und zurück zum Start?");
       if (!ok) return;
     }
     onExit();
   };
 
+  useEffect(() => {
+    return () => {
+      clearCountdownTimers();
+      closeCountdownAudio();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="roundScreen">
       <TopBar title="PartyBox" onBack={confirmExit} />
+
+      {countdown !== null && (
+        <div className="countdownOverlay" aria-hidden>
+          <div className="countdownNumber">{countdown}</div>
+        </div>
+      )}
 
       <div className="container stack-3" style={{ margin: "0 auto" }}>
         <ScoreBoard teamA={teamA} teamB={teamB} scoreA={scoreA} scoreB={scoreB} active={active} />

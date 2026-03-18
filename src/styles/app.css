@@ -292,3 +292,34 @@ a { color: inherit; }
 .stickyCtaInner {
   margin: 0 auto;
 }
+
+/* 3-2-1 countdown overlay */
+.countdownOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(7, 8, 22, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.countdownNumber {
+  font-size: 92px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+  color: rgba(255,255,255,0.96);
+  text-shadow: 0 16px 60px rgba(0,0,0,0.55);
+
+  animation: countdownPop 550ms ease-out;
+}
+
+@keyframes countdownPop {
+  0% { opacity: 0; transform: scale(0.82); }
+  14% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1.0); }
+}
