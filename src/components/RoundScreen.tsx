@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { t, type Lang } from "../i18n";
 import { getTerms } from "../data/terms.index";
+import type { PackId } from "../data/packs";
+import { pickRandomTwist, type Twist } from "../data/twists";
+import { makeDeck } from "../utils/deck";
 import type { Mode } from "./ModeBadge";
 import { ModeBadge } from "./ModeBadge";
 import { ScoreBoard } from "./ScoreBoard";
@@ -17,25 +20,22 @@ function randomMode(): Mode {
   return "ERKLAEREN";
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+// shuffle + de-dup moved to ../utils/deck
 
 export function RoundScreen({
   teamA,
   teamB,
   duration,
+  twistsEnabled,
+  packs,
   lang,
   onExit,
 }: {
   teamA: string;
   teamB: string;
   duration: number;
+  twistsEnabled: boolean;
+  packs: PackId[];
   lang: Lang;
   onExit: () => void;
 }) {
@@ -44,8 +44,9 @@ export function RoundScreen({
   const [scoreB, setScoreB] = useState(0);
 
   const [mode, setMode] = useState<Mode>(() => randomMode());
-  const terms = useMemo(() => getTerms(lang), [lang]);
-  const [deck, setDeck] = useState(() => shuffle(terms));
+  const [twist, setTwist] = useState<Twist | null>(null);
+  const terms = useMemo(() => getTerms(lang, packs), [lang, packs]);
+  const [deck, setDeck] = useState(() => makeDeck(terms));
   const [idx, setIdx] = useState(0);
 
   const [running, setRunning] = useState(false);
@@ -115,6 +116,7 @@ export function RoundScreen({
     if (countdown !== null) return;
 
     setMode(randomMode());
+    setTwist(twistsEnabled ? pickRandomTwist() : null);
     setRoundOver(false);
     setRunning(false);
 
@@ -194,6 +196,11 @@ export function RoundScreen({
     return `${teamA}: ${scoreA}  ·  ${teamB}: ${scoreB}`;
   }, [scoreA, scoreB, teamA, teamB]);
 
+  const twistRecap = useMemo(() => {
+    if (!twist) return undefined;
+    return `${t(lang, "twistRecap")}: ${twist.title[lang]} — ${twist.rule[lang]}`;
+  }, [lang, twist]);
+
   const onNextTeam = () => {
     setActive((v) => (v === "A" ? "B" : "A"));
     setRoundOver(false);
@@ -201,7 +208,7 @@ export function RoundScreen({
     setHandoff(true);
 
     if (idx >= deck.length - 1) {
-      setDeck(shuffle(terms));
+      setDeck(makeDeck(terms));
       setIdx(0);
     }
   };
@@ -257,11 +264,14 @@ export function RoundScreen({
       <div className="container stack-3" style={{ margin: "0 auto" }}>
         <ScoreBoard teamA={teamA} teamB={teamB} scoreA={scoreA} scoreB={scoreB} active={active} />
 
-        <div className="row-between">
+        <div className="row-between" style={{ gap: 10, flexWrap: "wrap" }}>
           <Pill>
             {t(lang, "teamTurn")} <span style={{ color: "rgba(255,255,255,0.9)", fontWeight: 800 }}>{activeName}</span>
           </Pill>
-          <ModeBadge mode={mode} lang={lang} />
+          <div className="row" style={{ gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            {twist && <Pill>{t(lang, "twistBadge")}: {twist.title[lang]}</Pill>}
+            <ModeBadge mode={mode} lang={lang} />
+          </div>
         </div>
 
         <Timer seconds={duration} running={running} onDone={onTimerDone} lang={lang} />
@@ -271,6 +281,24 @@ export function RoundScreen({
           style={{ position: "relative", overflow: "hidden" }}
         >
           <CorrectDelight burstKey={correctFxKey} />
+          {twist && (
+            <div
+              style={{
+                marginBottom: 10,
+                padding: "10px 12px",
+                borderRadius: 14,
+                background: "rgba(0,0,0,0.28)",
+                border: "1px solid rgba(255,255,255,0.12)",
+              }}
+            >
+              <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: ".14em", textTransform: "uppercase", color: "rgba(255,255,255,0.75)" }}>
+                {t(lang, "twistActive")}
+              </div>
+              <div style={{ marginTop: 6, fontSize: 15, fontWeight: 850, color: "rgba(255,255,255,0.92)" }}>{twist.title[lang]}</div>
+              <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.25, color: "rgba(255,255,255,0.70)" }}>{twist.rule[lang]}</div>
+            </div>
+          )}
+
           <div className="kicker">{t(lang, "term")}</div>
           <div className="term">
             <div className="termWord">{current}</div>
@@ -284,7 +312,14 @@ export function RoundScreen({
 
         <div className="smallNote">{running ? t(lang, "noPassing") : t(lang, "passPhone")}</div>
 
-        <RoundEndModal open={roundOver} title={t(lang, "timeUp")} subtitle={summary} onNextTeam={onNextTeam} />
+        <RoundEndModal
+          open={roundOver}
+          title={t(lang, "timeUp")}
+          subtitle={summary}
+          details={twistRecap}
+          onNextTeam={onNextTeam}
+          lang={lang}
+        />
       </div>
 
       {!roundOver && (

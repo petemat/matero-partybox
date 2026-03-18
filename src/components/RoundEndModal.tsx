@@ -1,15 +1,21 @@
 import { Button, Card } from "./ui";
 
+import { t, type Lang } from "../i18n";
+
 export function RoundEndModal({
   open,
   onNextTeam,
   title,
   subtitle,
+  details,
+  lang,
 }: {
   open: boolean;
   onNextTeam: () => void;
   title: string;
   subtitle?: string;
+  details?: string;
+  lang: Lang;
 }) {
   if (!open) return null;
 
@@ -30,9 +36,10 @@ export function RoundEndModal({
       <Card className="card-pad" style={{ maxWidth: 420, width: "100%" } as any}>
         <div style={{ color: "rgba(255,255,255,0.92)", fontSize: 22, fontWeight: 900 }}>{title}</div>
         {subtitle && <div style={{ color: "rgba(255,255,255,0.58)", marginTop: 8, fontSize: 14 }}>{subtitle}</div>}
+        {details && <div style={{ color: "rgba(255,255,255,0.70)", marginTop: 10, fontSize: 13, lineHeight: 1.25 }}>{details}</div>}
         <div style={{ marginTop: 16 }}>
           <Button variant="primary" onClick={onNextTeam}>
-            Nächstes Team
+            {t(lang, "nextTeam")}
           </Button>
         </div>
       </Card>

@@ -17,7 +17,7 @@ export function saveLang(lang: Lang) {
   } catch {}
 }
 
-const STRINGS: Record<Lang, Record<string, string>> = {
+export const STRINGS: Record<Lang, Record<string, string>> = {
   de: {
     tagline: "Activity / Tabu – 2 Teams, 1 Handy.",
     teams: "Teams",
@@ -48,6 +48,36 @@ const STRINGS: Record<Lang, Record<string, string>> = {
     explain: "🗣️ Erklären",
 
     drawMvpNote: "(MVP) Malen-Modus: später kommt Canvas dazu.",
+
+    twistsLabel: "Twists / Modifier",
+    on: "An",
+    off: "Aus",
+
+    packs: "Packs",
+    packClassic: "Classic",
+    packMovies: "Filme & Serien",
+    packInternet: "Internet",
+    packKids: "Kids",
+    packHard: "Hard",
+
+    twistBadge: "Twist",
+    twistActive: "Aktiver Twist",
+    twistRecap: "Twist",
+
+    recapTitle: "Runden-Recap",
+    recapMode: "Modus:",
+    recapTwist: "Twist:",
+    recapWords: "Begriffe:",
+    recapScore: "Stand:",
+    copyRecap: "Recap kopieren",
+    copied: "Kopiert!",
+    nextTeam: "Nächstes Team",
+
+    twistNone: "Kein Twist",
+    twistNoGestures: "Keine Gesten",
+    twistOnlyQuestions: "Nur Fragen",
+    twistOneWord: "Nur 1 Wort",
+    twistRhyme: "Reimen",
   },
   en: {
     tagline: "Activity / Taboo – 2 teams, 1 phone.",
@@ -79,6 +109,36 @@ const STRINGS: Record<Lang, Record<string, string>> = {
     explain: "🗣️ Explain",
 
     drawMvpNote: "(MVP) Draw mode: canvas coming later.",
+
+    twistsLabel: "Twists / modifiers",
+    on: "On",
+    off: "Off",
+
+    packs: "Packs",
+    packClassic: "Classic",
+    packMovies: "Movies & TV",
+    packInternet: "Internet",
+    packKids: "Kids",
+    packHard: "Hard",
+
+    twistBadge: "Twist",
+    twistActive: "Active twist",
+    twistRecap: "Twist",
+    nextTeam: "Next team",
+
+    recapTitle: "Round recap",
+    recapMode: "Mode:",
+    recapTwist: "Twist:",
+    recapWords: "Words:",
+    recapScore: "Score:",
+    copyRecap: "Copy recap",
+    copied: "Copied!",
+
+    twistNone: "No twist",
+    twistNoGestures: "No gestures",
+    twistOnlyQuestions: "Questions only",
+    twistOneWord: "One word",
+    twistRhyme: "Rhyming",
   },
 };
 

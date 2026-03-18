@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { t, type Lang } from "../i18n";
+import { PACKS, type PackId, normalizePackSelection, DEFAULT_PACKS } from "../data/packs";
 import { Button, Card, Pill } from "./ui";
 
 export function StartScreen({
@@ -7,13 +8,36 @@ export function StartScreen({
   lang,
   setLang,
 }: {
-  onStart: (cfg: { teamA: string; teamB: string; duration: number }) => void;
+  onStart: (cfg: { teamA: string; teamB: string; duration: number; twistsEnabled: boolean; packs: PackId[] }) => void;
   lang: Lang;
   setLang: (l: Lang) => void;
 }) {
   const [teamA, setTeamA] = useState(t(lang, "teamA"));
   const [teamB, setTeamB] = useState(t(lang, "teamB"));
   const [duration, setDuration] = useState<30 | 60 | 90>(60);
+
+  const [packs, setPacks] = useState<PackId[]>(() => {
+    try {
+      const raw = window.localStorage.getItem("partybox:packs");
+      return normalizePackSelection(raw ? JSON.parse(raw) : DEFAULT_PACKS);
+    } catch {
+      return DEFAULT_PACKS;
+    }
+  });
+
+  const [twistsEnabled, setTwistsEnabled] = useState<boolean>(() => {
+    try {
+      return window.localStorage.getItem("partybox:twists") !== "off";
+    } catch {
+      return true;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("partybox:packs", JSON.stringify(packs));
+    } catch {}
+  }, [packs]);
 
   const durations: Array<30 | 60 | 90> = useMemo(() => [30, 60, 90], []);
 
@@ -86,6 +110,52 @@ export function StartScreen({
             <Pill>{t(lang, "noRepeats")}</Pill>
           </div>
 
+          <div className="row-between" style={{ paddingTop: 4, gap: 10, alignItems: "center" }}>
+            <div className="kicker" style={{ margin: 0 }}>
+              {t(lang, "twistsLabel")}
+            </div>
+            <button
+              type="button"
+              className={`pill ${twistsEnabled ? "pill--active" : ""}`}
+              onClick={() => {
+                const next = !twistsEnabled;
+                setTwistsEnabled(next);
+                try {
+                  window.localStorage.setItem("partybox:twists", next ? "on" : "off");
+                } catch {}
+              }}
+              aria-pressed={twistsEnabled}
+            >
+              {twistsEnabled ? t(lang, "on") : t(lang, "off")}
+            </button>
+          </div>
+
+          <div className="kicker" style={{ marginTop: 10 }}>
+            {t(lang, "packs")}
+          </div>
+          <div className="row" style={{ flexWrap: "wrap", gap: 8 }} aria-label={t(lang, "packs")}>
+            {PACKS.map((p) => {
+              const active = packs.includes(p.id);
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`pill ${active ? "pill--active" : ""}`}
+                  aria-pressed={active}
+                  onClick={() => {
+                    setPacks((prev) => {
+                      const has = prev.includes(p.id);
+                      const next = has ? prev.filter((x) => x !== p.id) : [...prev, p.id];
+                      return next.length ? next : DEFAULT_PACKS;
+                    });
+                  }}
+                >
+                  {t(lang, p.labelKey)}
+                </button>
+              );
+            })}
+          </div>
+
           <Button
             variant="primary"
             onClick={() =>
@@ -93,6 +163,8 @@ export function StartScreen({
                 teamA: teamA.trim() || t(lang, "teamA"),
                 teamB: teamB.trim() || t(lang, "teamB"),
                 duration,
+                twistsEnabled,
+                packs,
               })
             }
           >
