@@ -10,6 +10,7 @@ import { ScoreBoard } from "./ScoreBoard";
 import { Timer } from "./Timer";
 import { Button, Card, Pill } from "./ui";
 import { RoundEndModal } from "./RoundEndModal";
+import type { RoundRecap } from "./RoundRecapModal";
 import { TopBar } from "./TopBar";
 import { CorrectDelight } from "./CorrectDelight";
 
@@ -18,6 +19,12 @@ function randomMode(): Mode {
   if (r < 0.34) return "PANTOMIME";
   if (r < 0.67) return "MALEN";
   return "ERKLAEREN";
+}
+
+function modeLabel(lang: Lang, mode: Mode) {
+  if (mode === "PANTOMIME") return t(lang, "pantomime");
+  if (mode === "MALEN") return t(lang, "draw");
+  return t(lang, "explain");
 }
 
 // shuffle + de-dup moved to ../utils/deck
@@ -53,6 +60,13 @@ export function RoundScreen({
   const [roundOver, setRoundOver] = useState(false);
   const [handoff, setHandoff] = useState(true);
 
+  // recap / share
+  const roundWordsRef = useRef<string[]>([]);
+  const roundStartRef = useRef<{ active: "A" | "B"; scoreA: number; scoreB: number; mode: Mode; twist: Twist | null } | null>(null);
+  const [recap, setRecap] = useState<RoundRecap | null>(null);
+
+  // (removed duplicate recap state)
+
   // micro-delight
   const [correctFxKey, setCorrectFxKey] = useState(0);
   const [cardPop, setCardPop] = useState(false);
@@ -65,7 +79,18 @@ export function RoundScreen({
   const current = deck[idx] ?? (lang === "en" ? "(no more words)" : "(keine Begriffe mehr)");
   const activeName = active === "A" ? teamA : teamB;
 
-  const nextCard = () => setIdx((v) => (v + 1 < deck.length ? v + 1 : v));
+  const noteWord = (w: string) => {
+    const term = String(w || "").trim();
+    if (!term) return;
+    const prev = roundWordsRef.current;
+    const next = prev.length && prev[prev.length - 1] === term ? prev : [...prev, term];
+    roundWordsRef.current = next.slice(-3);
+  };
+
+  const nextCard = () => {
+    noteWord(current);
+    setIdx((v) => (v + 1 < deck.length ? v + 1 : v));
+  };
 
   const onCorrect = () => {
     setCorrectFxKey((k) => k + 1);
@@ -115,8 +140,18 @@ export function RoundScreen({
     if (running) return;
     if (countdown !== null) return;
 
-    setMode(randomMode());
-    setTwist(twistsEnabled ? pickRandomTwist() : null);
+    const m = randomMode();
+    const tw = twistsEnabled ? pickRandomTwist() : null;
+    setMode(m);
+    setTwist(tw);
+
+    // reset recap tracking for this round
+    const first = String(current || "").trim();
+    const initWords = first ? [first] : [];
+    roundWordsRef.current = initWords;
+    setRecap(null);
+    roundStartRef.current = { active, scoreA, scoreB, mode: m, twist: tw };
+
     setRoundOver(false);
     setRunning(false);
 
@@ -189,17 +224,47 @@ export function RoundScreen({
     } catch {}
 
     setRunning(false);
+
+    // include the current word in recap (if it wasn't advanced)
+    noteWord(current);
+
+    const start = roundStartRef.current;
+    const roundActive = start?.active ?? active;
+    const teamName = roundActive === "A" ? teamA : teamB;
+    const delta = roundActive === "A" ? scoreA - (start?.scoreA ?? scoreA) : scoreB - (start?.scoreB ?? scoreB);
+
+    setRecap({
+      teamName,
+      delta,
+      mode: start?.mode ?? mode,
+      twist: start?.twist ?? twist,
+      words: roundWordsRef.current,
+      scoreLine: `${teamA}: ${scoreA}  ·  ${teamB}: ${scoreB}`,
+    });
+
     setRoundOver(true);
   };
 
-  const summary = useMemo(() => {
-    return `${teamA}: ${scoreA}  ·  ${teamB}: ${scoreB}`;
-  }, [scoreA, scoreB, teamA, teamB]);
+  const recapDetails = useMemo(() => {
+    if (!recap) return "";
+    const lines: string[] = [];
+    lines.push(`${recap.teamName} (${recap.delta >= 0 ? "+" : ""}${recap.delta})`);
+    lines.push(`${t(lang, "recapMode")} ${modeLabel(lang, recap.mode)}`);
 
-  const twistRecap = useMemo(() => {
-    if (!twist) return undefined;
-    return `${t(lang, "twistRecap")}: ${twist.title[lang]} — ${twist.rule[lang]}`;
-  }, [lang, twist]);
+    const twistLine = recap.twist
+      ? `${recap.twist.title[lang]} — ${recap.twist.rule[lang]}`
+      : t(lang, "twistNone");
+    lines.push(`${t(lang, "recapTwist")} ${twistLine}`);
+
+    lines.push(`${t(lang, "recapWords")} ${recap.words.length ? recap.words.join(", ") : "-"}`);
+    lines.push(`${t(lang, "recapScore")} ${recap.scoreLine}`);
+    return lines.join("\n");
+  }, [lang, recap]);
+
+  const recapCopyText = useMemo(() => {
+    const header = lang === "en" ? "PartyBox — Round recap" : "PartyBox — Runden-Recap";
+    return `${header}\n${recapDetails}`;
+  }, [lang, recapDetails]);
 
   const onNextTeam = () => {
     setActive((v) => (v === "A" ? "B" : "A"));
@@ -314,9 +379,10 @@ export function RoundScreen({
 
         <RoundEndModal
           open={roundOver}
-          title={t(lang, "timeUp")}
-          subtitle={summary}
-          details={twistRecap}
+          title={t(lang, "recapTitle")}
+          subtitle={t(lang, "timeUp")}
+          details={recapDetails || undefined}
+          copyText={recap ? recapCopyText : undefined}
           onNextTeam={onNextTeam}
           lang={lang}
         />

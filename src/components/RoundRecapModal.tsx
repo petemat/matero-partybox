@@ -2,14 +2,13 @@ import { useMemo, useRef, useState } from "react";
 import { t, type Lang } from "../i18n";
 import type { Mode } from "./ModeBadge";
 import { Button, Card, Pill } from "./ui";
-
-export type TwistId = "NONE" | "NO_GESTURES" | "ONLY_QUESTIONS" | "ONE_WORD" | "RHYME";
+import type { Twist } from "../data/twists";
 
 export type RoundRecap = {
   teamName: string;
   delta: number;
   mode: Mode;
-  twist: TwistId;
+  twist: Twist | null;
   words: string[]; // already trimmed + max 3
   scoreLine: string;
 };
@@ -50,12 +49,9 @@ function modeLabel(lang: Lang, mode: Mode) {
   return t(lang, "explain");
 }
 
-function twistLabel(lang: Lang, twist: TwistId) {
-  if (twist === "NO_GESTURES") return t(lang, "twistNoGestures");
-  if (twist === "ONLY_QUESTIONS") return t(lang, "twistOnlyQuestions");
-  if (twist === "ONE_WORD") return t(lang, "twistOneWord");
-  if (twist === "RHYME") return t(lang, "twistRhyme");
-  return t(lang, "twistNone");
+function twistLabel(lang: Lang, twist: Twist | null) {
+  if (!twist) return t(lang, "twistNone");
+  return twist.title[lang];
 }
 
 export function RoundRecapModal({
