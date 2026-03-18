@@ -63,19 +63,22 @@ export function StartScreen({
           <div className="kicker" style={{ marginTop: 6 }}>
             {t(lang, "roundDuration")}
           </div>
-          <div className="row">
-            {durations.map((d) => (
-              <button
-                key={d}
-                onClick={() => setDuration(d)}
-                className={`btn btn--secondary`}
-                style={{ padding: "12px 10px", borderRadius: 16, fontSize: 15, width: "100%", background: "rgba(255,255,255,0.06)" }}
-              >
-                <span style={{ opacity: duration === d ? 1 : 0.9, fontWeight: duration === d ? 800 : 700 }}>
+          <div className="segmented" role="tablist" aria-label="Round duration">
+            {durations.map((d) => {
+              const active = duration === d;
+              return (
+                <button
+                  key={d}
+                  onClick={() => setDuration(d)}
+                  className={"segment" + (active ? " segment--active" : "")}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                >
                   {d}s
-                </span>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
 
           <div className="row-between" style={{ paddingTop: 4 }}>

@@ -177,7 +177,7 @@ a { color: inherit; }
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.88);
-  transition: transform 80ms ease, background 120ms ease;
+  transition: transform 80ms ease, background 120ms ease, box-shadow 120ms ease;
 }
 
 .btn:active { transform: scale(0.99); }
@@ -212,6 +212,34 @@ a { color: inherit; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+/* Segmented control (duration) */
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 6px;
+  border-radius: 18px;
+  background: rgba(10, 12, 28, 0.55);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.segment {
+  border-radius: 14px;
+  padding: 12px 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.78);
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.segment--active {
+  background: linear-gradient(180deg, rgba(124,58,237,0.55), rgba(91,33,182,0.55));
+  border-color: rgba(167,139,250,0.28);
+  color: rgba(255,255,255,0.95);
+  box-shadow: 0 10px 30px rgba(124,58,237,0.18);
 }
 
 /* Timer */
