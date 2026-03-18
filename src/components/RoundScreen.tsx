@@ -8,6 +8,7 @@ import { Timer } from "./Timer";
 import { Button, Card, Pill } from "./ui";
 import { RoundEndModal } from "./RoundEndModal";
 import { TopBar } from "./TopBar";
+import { CorrectDelight } from "./CorrectDelight";
 
 function randomMode(): Mode {
   const r = Math.random();
@@ -50,17 +51,28 @@ export function RoundScreen({
   const [running, setRunning] = useState(false);
   const [roundOver, setRoundOver] = useState(false);
 
+  // micro-delight
+  const [correctFxKey, setCorrectFxKey] = useState(0);
+  const [cardPop, setCardPop] = useState(false);
+
+  // countdown
   const [countdown, setCountdown] = useState<number | null>(null);
   const countdownTimersRef = useRef<number[]>([]);
   const countdownAudioRef = useRef<AudioContext | null>(null);
 
   const current = deck[idx] ?? (lang === "en" ? "(no more words)" : "(keine Begriffe mehr)");
-
   const activeName = active === "A" ? teamA : teamB;
 
   const nextCard = () => setIdx((v) => (v + 1 < deck.length ? v + 1 : v));
 
   const onCorrect = () => {
+    setCorrectFxKey((k) => k + 1);
+    setCardPop(true);
+    window.setTimeout(() => setCardPop(false), 180);
+    try {
+      (navigator as any)?.vibrate?.(12);
+    } catch {}
+
     if (active === "A") setScoreA((v) => v + 1);
     else setScoreB((v) => v + 1);
     nextCard();
@@ -89,11 +101,11 @@ export function RoundScreen({
       const g = ctx.createGain();
       o.type = "sine";
       o.frequency.value = freq;
-      g.gain.value = 0.055;
+      g.gain.value = 0.045;
       o.connect(g);
       g.connect(ctx.destination);
       o.start();
-      o.stop(ctx.currentTime + 0.08);
+      o.stop(ctx.currentTime + 0.07);
     } catch {}
   };
 
@@ -107,7 +119,6 @@ export function RoundScreen({
 
     setCountdown(3);
 
-    // Optional subtle tick sounds; can be disabled via localStorage key "partybox:sound" = "off".
     const soundOn = (() => {
       try {
         return window.localStorage.getItem("partybox:sound") !== "off";
@@ -123,7 +134,6 @@ export function RoundScreen({
     if (soundOn) {
       try {
         ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-        // iOS/Safari: resume must happen in a user gesture.
         ctx.resume?.();
         countdownAudioRef.current = ctx;
       } catch {
@@ -139,12 +149,14 @@ export function RoundScreen({
         if (ctx) playCountdownBeep(ctx, 660);
       }, 1000),
     );
+
     countdownTimersRef.current.push(
       window.setTimeout(() => {
         setCountdown(1);
         if (ctx) playCountdownBeep(ctx, 660);
       }, 2000),
     );
+
     countdownTimersRef.current.push(
       window.setTimeout(() => {
         setCountdown(null);
@@ -229,7 +241,11 @@ export function RoundScreen({
 
         <Timer seconds={duration} running={running} onDone={onTimerDone} lang={lang} />
 
-        <Card className="cardSolid card-pad stack-2">
+        <Card
+          className={`cardSolid card-pad stack-2 ${cardPop ? "pb-card-pop" : ""}`}
+          style={{ position: "relative", overflow: "hidden" }}
+        >
+          <CorrectDelight burstKey={correctFxKey} />
           <div className="kicker">{t(lang, "term")}</div>
           <div className="term">
             <div className="termWord">{current}</div>
