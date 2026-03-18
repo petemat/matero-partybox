@@ -50,6 +50,7 @@ export function RoundScreen({
 
   const [running, setRunning] = useState(false);
   const [roundOver, setRoundOver] = useState(false);
+  const [handoff, setHandoff] = useState(true);
 
   // micro-delight
   const [correctFxKey, setCorrectFxKey] = useState(0);
@@ -117,6 +118,7 @@ export function RoundScreen({
     setRoundOver(false);
     setRunning(false);
 
+    setHandoff(false);
     setCountdown(3);
 
     const soundOn = (() => {
@@ -196,6 +198,7 @@ export function RoundScreen({
     setActive((v) => (v === "A" ? "B" : "A"));
     setRoundOver(false);
     setRunning(false);
+    setHandoff(true);
 
     if (idx >= deck.length - 1) {
       setDeck(shuffle(terms));
@@ -222,6 +225,28 @@ export function RoundScreen({
   return (
     <div className="roundScreen">
       <TopBar title="PartyBox" onBack={confirmExit} />
+
+      {handoff && countdown === null && !running && !roundOver && (
+        <div
+          className="countdownOverlay"
+          role="button"
+          aria-label="Start round"
+          onClick={onStartRound}
+          style={{ cursor: "pointer" }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <div style={{ color: "rgba(255,255,255,0.70)", letterSpacing: ".22em", textTransform: "uppercase", fontSize: 12, fontWeight: 800 }}>
+              {t(lang, "handoffTitle")}
+            </div>
+            <div style={{ marginTop: 14, color: "rgba(255,255,255,0.92)", fontSize: 44, fontWeight: 950, letterSpacing: "-0.03em" }}>
+              {activeName}
+            </div>
+            <div style={{ marginTop: 14, color: "rgba(255,255,255,0.55)", fontSize: 14 }}>
+              {t(lang, "handoffTap")}
+            </div>
+          </div>
+        </div>
+      )}
 
       {countdown !== null && (
         <div className="countdownOverlay" aria-hidden>
@@ -266,7 +291,7 @@ export function RoundScreen({
         <div className="stickyCtaBar" role="navigation" aria-label="Round actions">
           <div className="container stickyCtaInner">
             {!running ? (
-              <Button variant="primary" onClick={onStartRound}>
+              <Button variant="primary" onClick={() => setHandoff(true)}>
                 {t(lang, "startRound")}
               </Button>
             ) : (

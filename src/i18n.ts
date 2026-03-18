@@ -39,6 +39,9 @@ const STRINGS: Record<Lang, Record<string, string>> = {
     timeUp: "Zeit vorbei",
     passPhone: "Handy ans nächste Team geben.",
     noPassing: "Weiterreichen ist verboten 😉",
+    handoffTitle: "Handy weitergeben",
+    handoffSubtitle: "An",
+    handoffTap: "Tippen um zu starten",
 
     pantomime: "🎭 Pantomime",
     draw: "✏️ Malen",
@@ -67,6 +70,9 @@ const STRINGS: Record<Lang, Record<string, string>> = {
     timeUp: "Time's up",
     passPhone: "Pass the phone to the next team.",
     noPassing: "No passing during the round 😉",
+    handoffTitle: "Pass the phone",
+    handoffSubtitle: "To",
+    handoffTap: "Tap to start",
 
     pantomime: "🎭 Charades",
     draw: "✏️ Draw",
