@@ -7,6 +7,7 @@ import { ScoreBoard } from "./ScoreBoard";
 import { Timer } from "./Timer";
 import { Button, Card, Pill } from "./ui";
 import { RoundEndModal } from "./RoundEndModal";
+import { TopBar } from "./TopBar";
 
 function randomMode(): Mode {
   const r = Math.random();
@@ -29,11 +30,13 @@ export function RoundScreen({
   teamB,
   duration,
   lang,
+  onExit,
 }: {
   teamA: string;
   teamB: string;
   duration: number;
   lang: Lang;
+  onExit: () => void;
 }) {
   const [active, setActive] = useState<"A" | "B">("A");
   const [scoreA, setScoreA] = useState(0);
@@ -105,8 +108,17 @@ export function RoundScreen({
     }
   };
 
+  const confirmExit = () => {
+    if (running) {
+      const ok = window.confirm(lang === "en" ? "End the game and go back to start?" : "Spiel beenden und zurück zum Start?");
+      if (!ok) return;
+    }
+    onExit();
+  };
+
   return (
     <div style={{ minHeight: "100svh", padding: 16 }}>
+      <TopBar title="PartyBox" onBack={confirmExit} />
       <div className="container stack-3" style={{ margin: "0 auto" }}>
         <ScoreBoard teamA={teamA} teamB={teamB} scoreA={scoreA} scoreB={scoreB} active={active} />
 

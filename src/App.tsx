@@ -11,9 +11,13 @@ export default function App() {
     saveLang(lang);
   }, [lang]);
 
+  const backToStart = () => {
+    setCfg(null);
+  };
+
   if (!cfg) {
     return <StartScreen onStart={(c) => setCfg(c)} lang={lang} setLang={setLang} />;
   }
 
-  return <RoundScreen teamA={cfg.teamA} teamB={cfg.teamB} duration={cfg.duration} lang={lang} />;
+  return <RoundScreen teamA={cfg.teamA} teamB={cfg.teamB} duration={cfg.duration} lang={lang} onExit={backToStart} />;
 }
